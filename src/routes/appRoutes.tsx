@@ -45,6 +45,14 @@ const appRoutes: RouteType[] = [
           displayText: "Home"
         },
       },
+      {
+        path: "/dashboard/analytics",
+        element: <AnalyticsPage />,
+        state: "dashboard.analytics",
+        sidebarProps: {
+          displayText: "People"
+        }
+      },
     ]
   },
 ];
