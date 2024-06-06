@@ -58,7 +58,7 @@ const appRoutes: RouteType[] = [
         element: <Request />,
         state: "dashboard.analytics",
         sidebarProps: {
-          displayText: "Cerrar sesion"
+          displayText: "Opciones"
         }
       },
       {
@@ -66,7 +66,7 @@ const appRoutes: RouteType[] = [
         element: <Request />,
         state: "dashboard.analytics",
         sidebarProps: {
-          displayText: "Opciones"
+          displayText: "Cerrar sesion"
         }
       },
     ]
