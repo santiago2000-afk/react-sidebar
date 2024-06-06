@@ -4,7 +4,7 @@ import { RouteType } from "./config";
 import DefaultPage from "../pages/dashboard/DefaultPage";
 import DashboardIndex from "../pages/dashboard/DashboardIndex";
 import ChangelogPage from "../pages/changelog/ChangelogPage";
-import AnalyticsPage from "../pages/dashboard/AnalyticsPage";
+import Request from "../pages/dashboard/AnalyticsPage";
 import SaasPage from "../pages/dashboard/SaasPage";
 import ComponentPageLayout from "../pages/component/ComponentPageLayout";
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
@@ -42,15 +42,23 @@ const appRoutes: RouteType[] = [
         element: <DefaultPage />,
         state: "dashboard.default",
         sidebarProps: {
-          displayText: "Home"
+          displayText: "Hogar"
         },
       },
       {
         path: "/dashboard/analytics",
-        element: <AnalyticsPage />,
+        element: <Request />,
         state: "dashboard.analytics",
         sidebarProps: {
-          displayText: "People"
+          displayText: "Solicitudes"
+        }
+      },
+      {
+        path: "/dashboard/analytics",
+        element: <Request />,
+        state: "dashboard.analytics",
+        sidebarProps: {
+          displayText: "Cerrar sesion"
         }
       },
     ]
