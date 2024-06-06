@@ -61,6 +61,14 @@ const appRoutes: RouteType[] = [
           displayText: "Cerrar sesion"
         }
       },
+      {
+        path: "/dashboard/analytics",
+        element: <Request />,
+        state: "dashboard.analytics",
+        sidebarProps: {
+          displayText: "Opciones"
+        }
+      },
     ]
   },
 ];
