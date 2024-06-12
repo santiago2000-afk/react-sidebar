@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Menu, MenuItem, Avatar, Typography } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material'; 
 
-const Dropdown = () => {
+const Home = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [menuType, setMenuType] = useState('');
@@ -20,7 +20,7 @@ const Dropdown = () => {
 
   const renderMenuItem = (items: { name: string; description: string; imgSrc: string }[]) =>
     items.map((item, index) => (
-      <MenuItem key={index} onClick={handleClose} style={{ minWidth: '320px' }}>
+      <MenuItem key={index} onClick={handleClose} style={{ width: '400px' }}>
         <Avatar alt={`Foto ${index + 1}`} src={item.imgSrc} sx={{ width: 64, height: 64, marginRight: 2 }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="subtitle1">{item.name}</Typography>
@@ -43,7 +43,7 @@ const Dropdown = () => {
     <div>
       <div onClick={(event) => handleClick(event, 'entradas')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #ccc' }}>
         <Typography variant="body1" style={{ marginRight: '8px' }}>
-          Solicitud de Visitantes
+          Entradas Recientes
         </Typography>
         {menuType === 'entradas' && (isOpen ? <ExpandLess color="primary" /> : <ExpandMore color="primary" />)}
       </div>
@@ -55,7 +55,7 @@ const Dropdown = () => {
       
       <div onClick={(event) => handleClick(event, 'recursos')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #ccc' }}>
         <Typography variant="body1" style={{ marginRight: '8px' }}>
-          Actividad de Visitantes
+          Habitantes
         </Typography>
         {menuType === 'recursos' && (isOpen ? <ExpandLess color="primary" /> : <ExpandMore color="primary" />)}
       </div>
@@ -68,4 +68,4 @@ const Dropdown = () => {
   );
 };
 
-export default Dropdown;
+export default Home;

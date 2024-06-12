@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Route } from "react-router-dom";
 import { Box, Toolbar } from "@mui/material";
 import colorConfigs from "../../configs/colorConfigs";
 import sizeConfigs from "../../configs/sizeConfigs";
@@ -25,7 +25,8 @@ const MainLayout = () => {
           p: 3,
           width: `calc(100% - ${sizeConfigs.sidebar.width})`,
           minHeight: "100vh",
-          backgroundColor: colorConfigs.mainBg
+          backgroundColor: '#0C7B93',
+          color: '#fff'
         }}
       >
         <Toolbar />

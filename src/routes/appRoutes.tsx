@@ -1,21 +1,25 @@
 import DashboardPageLayout from "../pages/dashboard/DashboardPageLayout";
 import HomePage from "../pages/home/HomePage";
 import { RouteType } from "./config";
-import DefaultPage from "../pages/dashboard/DefaultPage";
+import Home from "../pages/dashboard/Home";
 import DashboardIndex from "../pages/dashboard/DashboardIndex";
-import ChangelogPage from "../pages/changelog/ChangelogPage";
-import Request from "../pages/dashboard/AnalyticsPage";
-import SaasPage from "../pages/dashboard/SaasPage";
-import ComponentPageLayout from "../pages/component/ComponentPageLayout";
+import Request from "../pages/dashboard/Request";
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import AppsOutlinedIcon from '@mui/icons-material/AppsOutlined';
-import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import AlertPage from "../pages/component/AlertPage";
-import ButtonPage from "../pages/component/ButtonPage";
-import InstallationPage from "../pages/installation/InstallationPage";
-import DocumentationPage from "../pages/documentation/DocumentationPage";
+import Profile from "../pages/dashboard/Profile";
+import Notificaciones from "../pages/dashboard/Notificaciones";
+import People from "../pages/dashboard/People";
+import Residente from "../pages/dashboard/ResidenteNoPropietario";
+import Formulario from "../pages/Form";
+
+const user = {
+  name: 'John Doe',
+  photo: 'https://via.placeholder.com/150',
+  contract: 'ABC123',
+  dui: '12345678-9',
+  address: '123 Main St, San Salvador, El Salvador',
+  contact: '+503 1234 5678',
+  qrKey: 'https://example.com',
+};
 
 const appRoutes: RouteType[] = [
   {
@@ -28,7 +32,7 @@ const appRoutes: RouteType[] = [
     element: <DashboardPageLayout />,
     state: "dashboard",
     sidebarProps: {
-      displayText: "Dashboard",
+      displayText: "Inicio",
       icon: <DashboardOutlinedIcon />
     },
     child: [
@@ -38,15 +42,15 @@ const appRoutes: RouteType[] = [
         state: "dashboard.index"
       },
       {
-        path: "/dashboard/default",
-        element: <DefaultPage />,
+        path: "/dashboard/home",
+        element: <Home />,
         state: "dashboard.default",
         sidebarProps: {
           displayText: "Hogar"
         },
       },
       {
-        path: "/dashboard/analytics",
+        path: "/dashboard/request",
         element: <Request />,
         state: "dashboard.analytics",
         sidebarProps: {
@@ -54,20 +58,29 @@ const appRoutes: RouteType[] = [
         }
       },
       {
-        path: "/dashboard/analytics",
-        element: <Request />,
-        state: "dashboard.analytics",
-        sidebarProps: {
-          displayText: "Opciones"
-        }
+        path: "/dashboard/profile",
+        element: <Profile user={user} />,
+        state: "dashboard.profile"
       },
       {
-        path: "/dashboard/analytics",
-        element: <Request />,
-        state: "dashboard.analytics",
-        sidebarProps: {
-          displayText: "Cerrar sesion"
-        }
+        path: "/dashboard/notificaciones",
+        element: <Notificaciones />,
+        state: "dashboard.notificaciones"
+      },
+      {
+        path: "/dashboard/people",
+        element: <People />,
+        state: "dashboard.people"
+      },
+      {
+        path: "/dashboard/resident",
+        element: <Residente />,
+        state: "dashboard.people"
+      },
+      {
+        path: "/dashboard/formulario",
+        element: <Formulario />,
+        state: "dashboard.formulario"
       },
     ]
   },
