@@ -1,8 +1,9 @@
 import React from 'react';
-import { useForm, Controller, FieldValues } from 'react-hook-form';
-import { TextField, Button, Container, Box, Typography, Avatar, Link, CssBaseline, Grid, Paper } from '@mui/material';
+import { useForm, Controller } from 'react-hook-form';
+import { TextField, Button, Container, Box, Typography, Avatar, CssBaseline, Paper } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios, { AxiosError } from 'axios';
 
 const theme = createTheme();
 
@@ -14,9 +15,20 @@ interface IFormInput {
 const Login: React.FC = () => {
   const { handleSubmit, control, formState: { errors } } = useForm<IFormInput>();
 
-  const onSubmit = (data: IFormInput) => {
-    console.log(data);
-    // Aquí puedes manejar la lógica de autenticación
+  const onSubmit = async (data: IFormInput) => {
+    try {
+      const response = await axios.post('/api/login', data);
+
+      const token = response.data;
+
+      localStorage.setItem('token', token);
+      console.log('Login exitoso');
+
+    } catch (error: AxiosError) {
+      console.error('Error al iniciar sesión:', error.response?.data || error.message);
+
+      console.error(error.response?.data || 'Error al iniciar sesión');
+    }
   };
 
   return (
@@ -62,7 +74,7 @@ const Login: React.FC = () => {
                     message: 'Correo electrónico no válido'
                   }
                 }}
-                render={({ field }: { field: any }) => (
+                render={({ field }) => (
                   <TextField
                     {...field}
                     variant="outlined"
@@ -82,7 +94,7 @@ const Login: React.FC = () => {
                 control={control}
                 defaultValue=""
                 rules={{ required: 'La contraseña es obligatoria' }}
-                render={({ field }: { field: any }) => (
+                render={({ field }) => (
                   <TextField
                     {...field}
                     variant="outlined"

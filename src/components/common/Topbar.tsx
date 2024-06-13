@@ -19,14 +19,11 @@ const Topbar = () => {
         width: `calc(100% - ${sizeConfigs.sidebar.width})`,
         ml: sizeConfigs.sidebar.width,
         boxShadow: "unset",
-        backgroundColor: colorConfigs.topbar.bg,
+        backgroundColor: '#0C7B93',
         color: colorConfigs.topbar.color
       }}
     >
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Inicio
-        </Typography>
         <IconButton color="inherit" aria-label="Notificaciones" onClick={handleNotificationsClick}>
           <Badge badgeContent={4} color="error">
             <Notifications />

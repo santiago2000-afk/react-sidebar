@@ -2,7 +2,6 @@ import DashboardPageLayout from "../pages/dashboard/DashboardPageLayout";
 import HomePage from "../pages/home/HomePage";
 import { RouteType } from "./config";
 import Home from "../pages/dashboard/Home";
-import DashboardIndex from "../pages/dashboard/DashboardIndex";
 import Request from "../pages/dashboard/Request";
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import Profile from "../pages/dashboard/Profile";
@@ -38,10 +37,6 @@ const appRoutes: RouteType[] = [
     child: [
       {
         index: true,
-        element: <DashboardIndex />,
-        state: "dashboard.index"
-      },
-      {
         path: "/dashboard/home",
         element: <Home />,
         state: "dashboard.default",
