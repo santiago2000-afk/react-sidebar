@@ -24,9 +24,9 @@ const Login: React.FC = () => {
       localStorage.setItem('token', token);
       console.log('Login exitoso');
 
-    } catch (error: AxiosError) {
+    } catch (error: any) { 
       console.error('Error al iniciar sesión:', error.response?.data || error.message);
-
+      
       console.error(error.response?.data || 'Error al iniciar sesión');
     }
   };
