@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { TextField, Button, Container, Box, Typography, Avatar, CssBaseline, Paper } from '@mui/material';
+import { TextField, Button, Container, Box, Typography, Avatar, CssBaseline, Paper, Alert } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
 
@@ -14,20 +15,31 @@ interface IFormInput {
 
 const Login: React.FC = () => {
   const { handleSubmit, control, formState: { errors } } = useForm<IFormInput>();
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const onSubmit = async (data: IFormInput) => {
     try {
-      const response = await axios.post('/api/login', data);
+      const response = await axios.post('http://localhost:8080/api/login', data, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
+      });
 
-      const token = response.data;
-
-      localStorage.setItem('token', token);
-      console.log('Login exitoso');
-
-    } catch (error: any) { 
+      if (response.status === 200) {
+        const token = response.data.token;
+        localStorage.setItem('token', token); // Guarda el token en localStorage
+        setLoginError(null); // Clear any previous error messages
+        navigate('/dashboard/home'); // Redirigir a dashboard/home
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        setLoginError('Credenciales inválidas');
+      } else {
+        setLoginError('Error al iniciar sesión. Intente nuevamente.');
+      }
       console.error('Error al iniciar sesión:', error.response?.data || error.message);
-      
-      console.error(error.response?.data || 'Error al iniciar sesión');
     }
   };
 
@@ -109,6 +121,7 @@ const Login: React.FC = () => {
                   />
                 )}
               />
+              {loginError && <Alert severity="error">{loginError}</Alert>}
               <Button
                 type="submit"
                 fullWidth

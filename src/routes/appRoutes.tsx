@@ -9,6 +9,12 @@ import Notificaciones from "../pages/dashboard/Notificaciones";
 import People from "../pages/dashboard/People";
 import Residente from "../pages/dashboard/ResidenteNoPropietario";
 import Formulario from "../pages/Form";
+import UserListView from "../pages/admin/admin/ListaUsuarios";
+import VisitForm from "../pages/admin/admin/VisitForm";
+import Historial from "../pages/admin/admin/Historial";
+import Escaner from "../pages/admin/vigilante/Escaner";
+import HistorialVigilante from "../pages/admin/vigilante/Historial";
+
 
 const user = {
   name: 'John Doe',
@@ -20,11 +26,41 @@ const user = {
   qrKey: 'https://example.com',
 };
 
+const handleScan = (data: any) => {
+  console.log('Resultado del escaneo:', data);
+};
+
 const appRoutes: RouteType[] = [
   {
     index: true,
-    element: <HomePage />,
+    path: "/",
+    element: <Home />,
     state: "home"
+  },
+  {
+    path: "/admin/ver",
+    element: <UserListView />,
+    state: "ver"
+  },
+  {
+    path: "/vigilante/escaner",
+    element: <Escaner onScan={handleScan} />,
+    state: "escaner"
+  },
+  {
+    path: "/vigilante/historial",
+    element: <HistorialVigilante />,
+    state: "historial"
+  },
+  {
+    path: "/admin/historial",
+    element: <Historial />,
+    state: "historial"
+  },
+  {
+    path: "/admin/visita",
+    element: <VisitForm />,
+    state: "visita"
   },
   {
     path: "/dashboard",
@@ -61,11 +97,6 @@ const appRoutes: RouteType[] = [
         path: "/dashboard/notificaciones",
         element: <Notificaciones />,
         state: "dashboard.notificaciones"
-      },
-      {
-        path: "/dashboard/people",
-        element: <People />,
-        state: "dashboard.people"
       },
       {
         path: "/dashboard/resident",
