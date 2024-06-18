@@ -24,10 +24,10 @@ const QRCodeContainer = styled('div')({
 interface User {
   name: string;
   photo: string;
-  dui: string;
-  address: string;
   contact: string;
-  qrKey: string;
+  residence: string;
+  date: string;
+  time: string;
 }
 
 interface UserProfileProps {
@@ -47,18 +47,21 @@ const Profile: React.FC<UserProfileProps> = ({ user }) => {
               {user.name}
             </Typography>
             <Typography color="textSecondary" gutterBottom>
-              DUI: {user.dui}
-            </Typography>
-            <Typography color="textSecondary" gutterBottom>
-              Dirección: {user.address}
-            </Typography>
-            <Typography color="textSecondary" gutterBottom>
               Contacto: {user.contact}
+            </Typography>
+            <Typography color="textSecondary" gutterBottom>
+              Residencia: {user.residence}
+            </Typography>
+            <Typography color="textSecondary" gutterBottom>
+              Fecha: {user.date}
+            </Typography>
+            <Typography color="textSecondary" gutterBottom>
+              Hora: {user.time}
             </Typography>
           </Grid>
           <Grid item xs={12} display="flex" justifyContent="center">
             <QRCodeContainer>
-              <QRCode value={user.qrKey} size={128} />
+              <QRCode value={JSON.stringify(user)} size={128} />
             </QRCodeContainer>
           </Grid>
         </Grid>
