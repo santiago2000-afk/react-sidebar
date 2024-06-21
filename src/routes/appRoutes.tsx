@@ -125,7 +125,7 @@ const appRoutes: RouteType[] = [
         element: <Residente />,
         state: "dashboard.resident",
         sidebarProps: {
-          displayText: "Residentes"
+          displayText: "Residente"
         }
       },
       {

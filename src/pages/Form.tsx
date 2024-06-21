@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { Container, TextField, Button, Grid, Typography, Paper } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Container, TextField, Button, Grid, Typography, Paper, IconButton, Menu, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import { Link } from 'react-router-dom';
+import { FormControl, InputLabel, Select } from '@mui/material';
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -18,51 +22,116 @@ const SubmitButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
+const CancelButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+  marginLeft: theme.spacing(1),
+}));
+
 const Formulario = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     dui: '',
-    casa: '',
+    rol: '',
     contacto: '',
-    qrKey: ''
   });
 
   const [errors, setErrors] = useState({});
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [roles, setRoles] = useState([]);
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get('/api/roles');
+      if (Array.isArray(response.data)) {
+        setRoles(response.data);
+      } else {
+        console.error('La respuesta de roles no es un array:', response.data);
+      }
+    } catch (error) {
+      console.error('Error al obtener roles:', error);
+    }
+  };
+
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData(prevState => ({ ...prevState, [name]: value }));
   };
 
   const validate = () => {
     let tempErrors = {};
     tempErrors.nombre = formData.nombre ? "" : "Este campo es requerido.";
     tempErrors.dui = formData.dui ? "" : "Este campo es requerido.";
-    tempErrors.casa = formData.casa ? "" : "Este campo es requerido.";
+    tempErrors.rol = formData.rol ? "" : "Este campo es requerido.";
     tempErrors.contacto = formData.contacto ? "" : "Este campo es requerido.";
-    tempErrors.qrKey = formData.qrKey ? "" : "Este campo es requerido.";
-    
+
     setErrors(tempErrors);
     return Object.values(tempErrors).every(x => x === "");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
-      console.log('Datos del formulario:', formData);
+      try {
+        const response = await axios.post('/api/create', {
+          name: formData.nombre,
+          lastname: '', // Puedes ajustar esto según sea necesario
+          dui: formData.dui,
+          houseId: null,
+          phone: formData.contacto,
+          roleId: parseInt(formData.rol), // Asegúrate de parsear a entero según la estructura de roles
+          googleUser: null,
+          email: null,
+          password: null,
+          state: 1, // Ajusta según necesidad
+        });
 
+        console.log('Usuario creado:', response.data);
+        // Lógica adicional después de crear el usuario
+
+        // Limpiar el formulario después del envío exitoso
+        setFormData({
+          nombre: '',
+          dui: '',
+          rol: '',
+          contacto: '',
+        });
+        setErrors({});
+      } catch (error) {
+        console.error('Error al crear usuario:', error);
+        // Manejar el error, por ejemplo, mostrando un mensaje al usuario
+      }
     }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      nombre: '',
+      dui: '',
+      rol: '',
+      contacto: '',
+    });
+    setErrors({});
   };
 
   return (
     <Container maxWidth="sm">
       <FormContainer>
-        <Typography variant="h4" gutterBottom>
-          Formulario de Visitas
-        </Typography>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Typography variant="h4" gutterBottom>
+            Formulario de Visita
+          </Typography>
+          <IconButton color="primary" onClick={handleMenuOpen}>
+            <MenuIcon />
+          </IconButton>
+        </Grid>
+
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -86,14 +155,29 @@ const Formulario = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <InputField
-                name="casa"
-                label="Casa"
-                fullWidth
-                value={formData.casa}
-                onChange={handleChange}
-                {...(errors.casa && { error: true, helperText: errors.casa })}
-              />
+              <FormControl fullWidth>
+                <InputLabel htmlFor="rol-select">Rol</InputLabel>
+                <Select
+                  value={formData.rol}
+                  onChange={handleChange}
+                  inputProps={{
+                    name: 'rol',
+                    id: 'rol-select',
+                  }}
+                  fullWidth
+                  error={!!errors.rol}
+                >
+                  <MenuItem value="">
+                    <em>Seleccione un rol</em>
+                  </MenuItem>
+                  {roles.map(role => (
+                    <MenuItem key={role.id} value={role.id}>
+                      {role.roleName}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.rol && <Typography variant="caption" color="error">{errors.rol}</Typography>}
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <InputField
@@ -105,24 +189,28 @@ const Formulario = () => {
                 {...(errors.contacto && { error: true, helperText: errors.contacto })}
               />
             </Grid>
-            <Grid item xs={12}>
-              <InputField
-                name="qrKey"
-                label="QR Key"
-                fullWidth
-                value={formData.qrKey}
-                onChange={handleChange}
-                {...(errors.qrKey && { error: true, helperText: errors.qrKey })}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <SubmitButton type="submit" variant="contained" color="primary" fullWidth>
+            <Grid item xs={12} display="flex" justifyContent="space-between">
+              <SubmitButton type="submit" variant="contained" color="primary">
                 Enviar
               </SubmitButton>
+              <CancelButton type="button" variant="outlined" color="secondary" onClick={handleCancel}>
+                Cancelar
+              </CancelButton>
             </Grid>
           </Grid>
         </form>
       </FormContainer>
+
+      <Menu
+        id="menu-bar"
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem component={Link} to="/dashboard/request" onClick={handleMenuClose}>Solicitudes</MenuItem>
+        <MenuItem component={Link} to="/dashboard/profile" onClick={handleMenuClose}>Perfil</MenuItem>
+        <MenuItem component={Link} to="/dashboard/historial" onClick={handleMenuClose}>Historial</MenuItem>
+      </Menu>
     </Container>
   );
 };

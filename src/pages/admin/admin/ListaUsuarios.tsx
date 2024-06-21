@@ -40,13 +40,7 @@ const UserListView = () => {
     try {
       const response = await axios.get('/api/users');
       if (Array.isArray(response.data)) {
-        const updatedUsers = response.data.map(user => {
-          const userRole = roles.find(role => role.id === user.roleid);
-          return {
-            ...user,
-            role: userRole ? userRole.roleName : 'Rol Desconocido'
-          };
-        });
+        const updatedUsers = response.data.map(user => mapUserWithRole(user));
         setUsers(updatedUsers);
       } else {
         console.error('La respuesta no es un array:', response.data);
@@ -69,9 +63,18 @@ const UserListView = () => {
     }
   };
 
+  const mapUserWithRole = (user) => {
+    const userRole = roles.find(role => role.id === user.roleid);
+    return {
+      ...user,
+      role: userRole ? userRole.roleName : 'Rol Desconocido',
+    };
+  };
+
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
   const handleCreateUser = () => setOpen(true);
+  
   const handleClose = () => {
     setOpen(false);
     setNewUser(initialUserState);
@@ -80,7 +83,7 @@ const UserListView = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewUser((prevState) => ({ ...prevState, [name]: value }));
+    setNewUser(prevState => ({ ...prevState, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -91,26 +94,18 @@ const UserListView = () => {
       });
 
       const createdUser = response.data;
-      const selectedRole = roles.find(role => role.id === parseInt(newUser.role));
+      const mappedUser = mapUserWithRole(createdUser);
       
-      setUsers(prevUsers => [
-        ...prevUsers,
-        {
-          ...createdUser,
-          role: selectedRole ? selectedRole.roleName : 'Rol Desconocido',
-        }
-      ]);
-
+      setUsers(prevUsers => [...prevUsers, mappedUser]);
       handleClose();
     } catch (error) {
       console.error('Error al crear usuario:', error);
-      setError(error.response?.data?.message);
+      setError(error.response?.data?.message || 'Error al crear usuario');
     }
   };
 
   const handleEditUser = (userId) => {
     console.log('Editar usuario con ID:', userId);
-    // Aquí deberías agregar la lógica para editar el usuario
   };
 
   const handleDeleteUser = async (userId) => {
