@@ -51,7 +51,7 @@ const appRoutes: RouteType[] = [
     element: <HistorialVigilante />,
     state: "vigilante.historial",
     sidebarProps: {
-      displayText: "Historial"
+      displayText: "Historial vigilante"
     }
   },
   {
