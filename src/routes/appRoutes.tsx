@@ -16,7 +16,6 @@ import Escaner from '../pages/admin/vigilante/Escaner';
 import HistorialVigilante from '../pages/admin/vigilante/Historial';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import SecurityIcon from '@mui/icons-material/Security';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const user = {
   name: 'John Doe',
