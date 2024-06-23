@@ -1,11 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, MenuItem, Avatar, Typography } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material'; 
+import axios from 'axios';
 
 const Home = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [menuType, setMenuType] = useState('');
+  const [recentEntries, setRecentEntries] = useState<{ name: string; dui: string; phone: string }[]>([]);
+  const [habitants, setHabitants] = useState<{ name: string; description: string; imgSrc: string }[]>([]);
+
+  const fetchRecentEntries = async () => {
+    try {
+      const response = await axios.get('/api/users');
+      const lastEntry = response.data[response.data.length - 1];
+      setRecentEntries([lastEntry]);
+    } catch (error) {
+      console.error('Error al obtener las entradas recientes:', error);
+    }
+  };
+
+  const fetchHabitants = async () => {
+    try {
+      const response = await axios.get('/api/users');
+      setHabitants(response.data);
+    } catch (error) {
+      console.error('Error al obtener los habitantes:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentEntries();
+    fetchHabitants();
+  }, []);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, type: string) => {
     setAnchorEl(event.currentTarget);
@@ -18,13 +45,16 @@ const Home = () => {
     setIsOpen(false);
   };
 
-  const renderMenuItem = (items: { name: string; description: string; imgSrc: string }[]) =>
+  const renderMenuItem = (items: { name: string; dui?: string; phone?: string }[]) =>
     items.map((item, index) => (
       <MenuItem key={index} onClick={handleClose} style={{ width: '400px' }}>
-        <Avatar alt={`Foto ${index + 1}`} src={item.imgSrc} sx={{ width: 64, height: 64, marginRight: 2 }} />
+        <Avatar alt={`Foto ${index + 1}`} sx={{ width: 64, height: 64, marginRight: 2 }}>
+          {item.name.charAt(0).toUpperCase()}
+        </Avatar>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="subtitle1">{item.name}</Typography>
-          <Typography variant="body2" color="textSecondary">{item.description}</Typography>
+          {item.dui && <Typography variant="body2" color="textSecondary">DUI: {item.dui}</Typography>}
+          {item.phone && <Typography variant="body2" color="textSecondary">Phone: {item.phone}</Typography>}
         </div>
       </MenuItem>
     ));
@@ -47,23 +77,15 @@ const Home = () => {
         </Typography>
         {menuType === 'entradas' && (isOpen ? <ExpandLess color="primary" /> : <ExpandMore color="primary" />)}
       </div>
-      {renderMenu('entradas', [
-        { name: "Nombre 1", description: "Descripción 1", imgSrc: "foto1.jpg" },
-        { name: "Nombre 2", description: "Descripción 2", imgSrc: "foto2.jpg" },
-        { name: "Nombre 3", description: "Descripción 3", imgSrc: "foto3.jpg" }
-      ])}
+      {renderMenu('entradas', recentEntries)}
       
-      <div onClick={(event) => handleClick(event, 'recursos')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #ccc' }}>
+      <div onClick={(event) => handleClick(event, 'habitantes')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '8px 16px', borderBottom: '1px solid #ccc' }}>
         <Typography variant="body1" style={{ marginRight: '8px' }}>
           Habitantes
         </Typography>
-        {menuType === 'recursos' && (isOpen ? <ExpandLess color="primary" /> : <ExpandMore color="primary" />)}
+        {menuType === 'habitantes' && (isOpen ? <ExpandLess color="primary" /> : <ExpandMore color="primary" />)}
       </div>
-      {renderMenu('recursos', [
-        { name: "Recurso 1", description: "Descripción 1", imgSrc: "foto4.jpg" },
-        { name: "Recurso 2", description: "Descripción 2", imgSrc: "foto5.jpg" },
-        { name: "Recurso 3", description: "Descripción 3", imgSrc: "foto6.jpg" }
-      ])}
+      {renderMenu('habitantes', habitants)}
     </div>
   );
 };

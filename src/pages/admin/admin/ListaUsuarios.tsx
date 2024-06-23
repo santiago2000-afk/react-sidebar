@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { 
-  TextField, Button, Table, TableContainer, TableHead, TableBody, 
-  TableRow, TableCell, Paper, IconButton, Dialog, DialogActions, 
-  DialogContent, DialogTitle, Menu, MenuItem, Container, Select, FormControl, InputLabel 
+import {
+  TextField, Button, Table, TableContainer, TableHead, TableBody,
+  TableRow, TableCell, Paper, IconButton, Dialog, DialogActions,
+  DialogContent, DialogTitle, Menu, MenuItem, Container, Select, FormControl, InputLabel
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Menu as MenuIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
@@ -20,7 +20,9 @@ const initialUserState = {
   name: '',
   dui: '',
   role: '',
-  contact: '',
+  phone: '',
+  email: '',
+  password: '',
 };
 
 const UserListView = () => {
@@ -31,45 +33,28 @@ const UserListView = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchUsers();
-    fetchRoles();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await axios.get('/api/users');
-      if (Array.isArray(response.data)) {
-        const updatedUsers = response.data.map(user => mapUserWithRole(user));
-        setUsers(updatedUsers);
-      } else {
-        console.error('La respuesta no es un array:', response.data);
-      }
+      setUsers(response.data);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
     }
-  };
+  }, []);
 
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       const response = await axios.get('/api/roles');
-      if (Array.isArray(response.data)) {
-        setRoles(response.data);
-      } else {
-        console.error('La respuesta de roles no es un array:', response.data);
-      }
+      setRoles(response.data);
     } catch (error) {
       console.error('Error al obtener roles:', error);
     }
-  };
+  }, []);
 
-  const mapUserWithRole = (user) => {
-    const userRole = roles.find(role => role.id === user.roleid);
-    return {
-      ...user,
-      role: userRole ? userRole.roleName : 'Rol Desconocido',
-    };
-  };
+  useEffect(() => {
+    fetchUsers();
+    fetchRoles();
+  }, [fetchUsers, fetchRoles]);
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -90,13 +75,12 @@ const UserListView = () => {
     try {
       const response = await axios.post('/api/create', {
         ...newUser,
-        roleid: parseInt(newUser.role),
+        role: parseInt(newUser.role, 10),
       });
 
       const createdUser = response.data;
-      const mappedUser = mapUserWithRole(createdUser);
       
-      setUsers(prevUsers => [...prevUsers, mappedUser]);
+      setUsers(prevUsers => [...prevUsers, createdUser]);
       handleClose();
     } catch (error) {
       console.error('Error al crear usuario:', error);
@@ -109,11 +93,12 @@ const UserListView = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    try {
-      if (!userId) {
-        throw new Error('Error: userId is undefined');
-      }
+    if (!userId) {
+      console.error('Error: userId is undefined');
+      return;
+    }
 
+    try {
       await axios.delete(`/api/delete/${userId}`);
       setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
     } catch (error) {
@@ -149,7 +134,7 @@ const UserListView = () => {
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.dui}</TableCell>
                 <TableCell>{user.role}</TableCell>
-                <TableCell>{user.contact}</TableCell>
+                <TableCell>{user.phone}</TableCell>
                 <TableCell>
                   <IconButton color="primary" onClick={() => handleEditUser(user.id)}>
                     <EditIcon />
@@ -200,11 +185,29 @@ const UserListView = () => {
           </FormControl>
           <TextField
             margin="dense"
-            name="contact"
+            name="phone"
             label="Contacto"
             type="text"
             fullWidth
-            value={newUser.contact}
+            value={newUser.phone}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="dense"
+            name="email"
+            label="Email"
+            type="email"
+            fullWidth
+            value={newUser.email}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="dense"
+            name="password"
+            label="Contraseña"
+            type="password"
+            fullWidth
+            value={newUser.password}
             onChange={handleChange}
           />
           {error && <p style={{ color: 'red' }}>{error}</p>}

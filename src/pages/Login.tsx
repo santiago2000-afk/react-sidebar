@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { TextField, Button, Container, Box, Typography, Avatar, CssBaseline, Paper, Alert } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Container,
+  Box,
+  Typography,
+  Avatar,
+  CssBaseline,
+  Paper,
+  Alert,
+} from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 const theme = createTheme();
 
@@ -16,22 +25,16 @@ interface IFormInput {
 const Login: React.FC = () => {
   const { handleSubmit, control, formState: { errors } } = useForm<IFormInput>();
   const [loginError, setLoginError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const onSubmit = async (data: IFormInput) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/login', data, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        withCredentials: true
-      });
+      const response = await api.post('/api/login', data);
 
       if (response.status === 200) {
-        const token = response.data.token;
-        localStorage.setItem('token', token); // Guarda el token en localStorage
-        setLoginError(null); // Clear any previous error messages
-        navigate('/dashboard/home'); // Redirigir a dashboard/home
+        setLoginError(null);
+        // Navegación después del inicio de sesión exitoso
+        // Ejemplo usando useHistory de react-router-dom:
+        // history.push('/dashboard/home');
       }
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
@@ -45,13 +48,13 @@ const Login: React.FC = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box 
-        sx={{ 
-          minHeight: '100vh', 
-          backgroundColor: '#0F4C75', 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center' 
+      <Box
+        sx={{
+          minHeight: '100vh',
+          backgroundColor: '#0F4C75',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         <Container component="main" maxWidth="xs">
@@ -65,7 +68,7 @@ const Login: React.FC = () => {
               padding: '20px',
               borderRadius: '10px',
               backgroundImage: 'linear-gradient(to right, #0F4C75, #3282B8)',
-              color: 'white'
+              color: 'white',
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: '#1B262C' }}>
@@ -83,8 +86,8 @@ const Login: React.FC = () => {
                   required: 'El correo electrónico es obligatorio',
                   pattern: {
                     value: /^[^@]+@[^@]+\.[a-zA-Z]{2,}$/,
-                    message: 'Correo electrónico no válido'
-                  }
+                    message: 'Correo electrónico no válido',
+                  },
                 }}
                 render={({ field }) => (
                   <TextField
@@ -96,8 +99,9 @@ const Login: React.FC = () => {
                     autoComplete="email"
                     autoFocus
                     error={!!errors.email}
-                    helperText={errors.email ? String(errors.email.message) : ''}
-                    sx={{ input: { color: 'white' }, '& label': { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+                    helperText={errors.email ? errors.email.message : ''}
+                    InputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
                   />
                 )}
               />
@@ -116,8 +120,9 @@ const Login: React.FC = () => {
                     type="password"
                     autoComplete="current-password"
                     error={!!errors.password}
-                    helperText={errors.password ? String(errors.password.message) : ''}
-                    sx={{ input: { color: 'white' }, '& label': { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+                    helperText={errors.password ? errors.password.message : ''}
+                    InputProps={{ style: { color: 'white' } }}
+                    InputLabelProps={{ style: { color: 'white' } }}
                   />
                 )}
               />
