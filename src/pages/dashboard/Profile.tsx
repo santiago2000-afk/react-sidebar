@@ -64,7 +64,7 @@ const QRCodeContainer = styled('div')({
 const Profile = () => {
   const user = {
     name: "Jhon Doe",
-    photo: "", // No se usa imagen
+    photo: "",
     contact: "75855444",
     residence: "H00001",
     date: "2024-06-23",
