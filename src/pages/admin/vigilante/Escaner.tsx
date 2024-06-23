@@ -48,7 +48,6 @@ const Escaner = () => {
   const [showTimeoutAlert, setShowTimeoutAlert] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // Obtener datos de usuarios al cargar el componente
   useEffect(() => {
     axios.get('/api/users')
       .then(response => {
@@ -71,41 +70,36 @@ const Escaner = () => {
     if (data) {
       try {
         const result = JSON.parse(data);
-        if (typeof result === 'object' && result !== null) {
-          // Verificar que el objeto contiene los campos necesarios
-          if (result.nombre && result.dui && result.rol && result.contacto) {
-            // Buscar coincidencia en el listado de usuarios
-            const matchedUser = usersData.find(user =>
-              user.name === result.nombre &&
-              user.dui === result.dui &&
-              user.phone === result.contacto &&
-              user.roleId === result.rol
-            );
-
-            if (matchedUser) {
-              setScanResult(result);
-              setUser(matchedUser);
-              setScanning(false);
-              setErrorAlert(false);
-              setShowTimeoutAlert(false);
-              return; // Salir de la función si se encontró un usuario coincidente
-            } else {
-              throw new Error('El código QR escaneado no coincide con ningún usuario válido.');
-            }
+        if (typeof result === 'object' && result !== null && result.id) {
+          const scannedId = result.id.toString();
+          const matchedUser = usersData.find(user =>
+            user.id === scannedId
+          );
+  
+          if (matchedUser) {
+            setScanResult(result);
+            setUser(matchedUser);
+            setScanning(false);
+            setErrorAlert(false);
+            setShowTimeoutAlert(false);
           } else {
-            throw new Error('El código QR no contiene los datos necesarios (nombre, dui, rol, contacto).');
+            throw new Error('El usuario con este ID no existe.');
           }
         } else {
-          throw new Error('QR no contiene datos válidos');
+          throw new Error('El código QR no contiene un ID válido.');
         }
       } catch (error) {
         console.error("Error al procesar el resultado del escaneo:", error.message);
         setErrorAlert(true);
         setScanning(false);
         setShowTimeoutAlert(false);
+        setTimeout(() => {
+          setErrorAlert(false);
+        }, 5000);
       }
     }
   };
+  
 
   const handleStartScan = () => {
     setScanResult(null);
@@ -150,8 +144,8 @@ const Escaner = () => {
               <>
                 <Typography variant="body1" align="center">
                   {showTimeoutAlert ? '10 segundos sin detectar código QR. Vuelva a intentarlo.' :
-                    errorAlert ? 'Código QR incorrecto o no contiene datos válidos. Por favor, escanee un código QR válido.' :
-                      (scanResult ? `Resultado del escaneo: ${scanResult.nombre}` : 'No se ha escaneado ningún código QR.')}
+                    errorAlert ? 'Usuario no encontrado. Escanee un código QR válido.' :
+                      (scanResult ? `Resultado del escaneo: ID: ${scanResult.id}` : 'No se ha escaneado ningún código QR.')}
                 </Typography>
                 <ScanButton variant="contained" color="primary" onClick={handleStartScan} fullWidth>
                   Iniciar Escaneo
@@ -176,7 +170,7 @@ const Escaner = () => {
 
       {errorAlert && (
         <AlertMessage severity="error" sx={{ mt: 2 }}>
-          Código QR incorrecto o no contiene datos válidos. Por favor, escanee un código QR válido.
+          Usuario no encontrado. Escanee un código QR válido.
         </AlertMessage>
       )}
       {showTimeoutAlert && (

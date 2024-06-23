@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, TextField, Button, Grid, Typography, Paper, IconButton, Menu, MenuItem } from '@mui/material';
+import {
+  Container, TextField, Button, Grid, Typography, Paper, IconButton, Menu, MenuItem,
+  FormControl, InputLabel, Select
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
-import { FormControl, InputLabel, Select } from '@mui/material';
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -31,16 +33,21 @@ const Formulario = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     dui: '',
-    rol: '',
+    rol: 4,
     contacto: '',
+    houseId: '',
   });
 
   const [errors, setErrors] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const [roles, setRoles] = useState([]);
+  const [houses, setHouses] = useState([]);
+  const [housesLoading, setHousesLoading] = useState(false);
+  const [housesError, setHousesError] = useState(null);
 
   useEffect(() => {
     fetchRoles();
+    fetchHouses();
   }, []);
 
   const fetchRoles = async () => {
@@ -53,6 +60,23 @@ const Formulario = () => {
       }
     } catch (error) {
       console.error('Error al obtener roles:', error);
+    }
+  };
+
+  const fetchHouses = async () => {
+    setHousesLoading(true);
+    try {
+      const response = await axios.get('/api/houses');
+      if (Array.isArray(response.data)) {
+        setHouses(response.data);
+      } else {
+        console.error('La respuesta de casas no es un array:', response.data);
+      }
+    } catch (error) {
+      console.error('Error al obtener casas:', error);
+      setHousesError('Error al obtener casas. Por favor, inténtalo nuevamente.');
+    } finally {
+      setHousesLoading(false);
     }
   };
 
@@ -81,31 +105,28 @@ const Formulario = () => {
       try {
         const response = await axios.post('/api/create', {
           name: formData.nombre,
-          lastname: '', // Puedes ajustar esto según sea necesario
+          lastname: '',
           dui: formData.dui,
-          houseId: null,
+          houseId: formData.houseId || null,
           phone: formData.contacto,
-          roleId: parseInt(formData.rol), // Asegúrate de parsear a entero según la estructura de roles
+          roleId: parseInt(formData.rol),
           googleUser: null,
           email: null,
           password: null,
-          state: 1, // Ajusta según necesidad
+          state: 1,
         });
 
         console.log('Usuario creado:', response.data);
-        // Lógica adicional después de crear el usuario
-
-        // Limpiar el formulario después del envío exitoso
         setFormData({
           nombre: '',
           dui: '',
-          rol: '',
+          rol: 4,
           contacto: '',
+          houseId: '',
         });
         setErrors({});
       } catch (error) {
         console.error('Error al crear usuario:', error);
-        // Manejar el error, por ejemplo, mostrando un mensaje al usuario
       }
     }
   };
@@ -114,8 +135,9 @@ const Formulario = () => {
     setFormData({
       nombre: '',
       dui: '',
-      rol: '',
+      rol: 4,
       contacto: '',
+      houseId: '',
     });
     setErrors({});
   };
@@ -165,18 +187,35 @@ const Formulario = () => {
                     id: 'rol-select',
                   }}
                   fullWidth
-                  error={!!errors.rol}
+                  disabled
+                >
+                  <MenuItem value={4}>Visitante</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="house-select">Casa</InputLabel>
+                <Select
+                  value={formData.houseId}
+                  onChange={handleChange}
+                  inputProps={{
+                    name: 'houseId',
+                    id: 'house-select',
+                  }}
+                  fullWidth
                 >
                   <MenuItem value="">
-                    <em>Seleccione un rol</em>
+                    <em>Seleccione una casa</em>
                   </MenuItem>
-                  {roles.map(role => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.roleName}
+                  {houses.map(house => (
+                    <MenuItem key={house.id} value={house.id}>
+                      {house.address}
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.rol && <Typography variant="caption" color="error">{errors.rol}</Typography>}
+                {housesLoading && <Typography variant="caption">Cargando casas...</Typography>}
+                {housesError && <Typography variant="caption" color="error">{housesError}</Typography>}
               </FormControl>
             </Grid>
             <Grid item xs={12}>

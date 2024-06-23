@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, TextField, Button, Grid, Typography, Paper, IconButton, Menu, MenuItem } from '@mui/material';
+import {
+  Container, TextField, Button, Grid, Typography, Paper, IconButton, Menu, MenuItem,
+  FormControl, InputLabel, Select
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
-import { FormControl, InputLabel, Select } from '@mui/material';
 
 const FormContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -31,16 +33,21 @@ const VisitForm = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     dui: '',
-    rol: 4, // Valor por defecto para 'Visitante'
+    rol: 5,
     contacto: '',
+    houseId: '',
   });
 
   const [errors, setErrors] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const [roles, setRoles] = useState([]);
+  const [houses, setHouses] = useState([]);
+  const [housesLoading, setHousesLoading] = useState(false);
+  const [housesError, setHousesError] = useState(null);
 
   useEffect(() => {
     fetchRoles();
+    fetchHouses();
   }, []);
 
   const fetchRoles = async () => {
@@ -53,6 +60,23 @@ const VisitForm = () => {
       }
     } catch (error) {
       console.error('Error al obtener roles:', error);
+    }
+  };
+
+  const fetchHouses = async () => {
+    setHousesLoading(true);
+    try {
+      const response = await axios.get('/api/houses');
+      if (Array.isArray(response.data)) {
+        setHouses(response.data);
+      } else {
+        console.error('La respuesta de casas no es un array:', response.data);
+      }
+    } catch (error) {
+      console.error('Error al obtener casas:', error);
+      setHousesError('Error al obtener casas. Por favor, inténtalo nuevamente.');
+    } finally {
+      setHousesLoading(false);
     }
   };
 
@@ -82,7 +106,7 @@ const VisitForm = () => {
           name: formData.nombre,
           lastname: '', // Puedes ajustar esto según sea necesario
           dui: formData.dui,
-          houseId: null,
+          houseId: formData.houseId || null,
           phone: formData.contacto,
           roleId: parseInt(formData.rol), // Asegúrate de parsear a entero según la estructura de roles
           googleUser: null,
@@ -100,6 +124,7 @@ const VisitForm = () => {
           dui: '',
           rol: 4, // Resetear a 'Visitante' después del envío
           contacto: '',
+          houseId: '', // Resetear la casa después del envío
         });
         setErrors({});
       } catch (error) {
@@ -115,6 +140,7 @@ const VisitForm = () => {
       dui: '',
       rol: 4, // Resetear a 'Visitante' después de cancelar
       contacto: '',
+      houseId: '', // Resetear la casa después de cancelar
     });
     setErrors({});
   };
@@ -166,10 +192,36 @@ const VisitForm = () => {
                   fullWidth
                   disabled // Para deshabilitar la selección del usuario
                 >
-                  <MenuItem value={4}>Visitante</MenuItem> {/* Opción 'Visitante' con valor 4 */}
+                  {roles.map((role) => (
+                    <MenuItem key={role.id} value={role.id}>
+                      {role.roleName}
+                    </MenuItem>
+                  ))}
                 </Select>
                 {/* No se muestra error para 'rol' ya que está deshabilitado */}
               </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor="house-select">Casa</InputLabel>
+                <Select
+                  value={formData.houseId}
+                  onChange={handleChange}
+                  inputProps={{
+                    name: 'houseId',
+                    id: 'house-select',
+                  }}
+                  fullWidth
+                >
+                  {houses.map((house) => (
+                    <MenuItem key={house.id} value={house.id}>
+                      {house.address}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {housesLoading && <p>Cargando casas...</p>}
+              {housesError && <p style={{ color: 'red' }}>{housesError}</p>}
             </Grid>
             <Grid item xs={12}>
               <InputField

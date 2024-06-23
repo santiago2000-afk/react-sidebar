@@ -23,6 +23,7 @@ const initialUserState = {
   phone: '',
   email: '',
   password: '',
+  houseId: '', // Nuevo campo para house
 };
 
 const UserListView = () => {
@@ -30,6 +31,7 @@ const UserListView = () => {
   const [open, setOpen] = useState(false);
   const [newUser, setNewUser] = useState(initialUserState);
   const [roles, setRoles] = useState([]);
+  const [houses, setHouses] = useState([]); // Nuevo estado para houses
   const [anchorEl, setAnchorEl] = useState(null);
   const [error, setError] = useState(null);
 
@@ -51,10 +53,20 @@ const UserListView = () => {
     }
   }, []);
 
+  const fetchHouses = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/houses');
+      setHouses(response.data);
+    } catch (error) {
+      console.error('Error al obtener houses:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchUsers();
     fetchRoles();
-  }, [fetchUsers, fetchRoles]);
+    fetchHouses();
+  }, [fetchUsers, fetchRoles, fetchHouses]);
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
@@ -179,6 +191,20 @@ const UserListView = () => {
               {roles.map((role) => (
                 <MenuItem key={role.id} value={role.id}>
                   {role.roleName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Casa</InputLabel>
+            <Select
+              name="houseId"
+              value={newUser.houseId}
+              onChange={handleChange}
+            >
+              {houses.map((house) => (
+                <MenuItem key={house.id} value={house.id}>
+                  {house.address}
                 </MenuItem>
               ))}
             </Select>
