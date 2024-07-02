@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import api from '../api';
+import axios from 'axios';
 
 const theme = createTheme();
 
@@ -25,18 +25,26 @@ interface IFormInput {
 const Login: React.FC = () => {
   const { handleSubmit, control, formState: { errors } } = useForm<IFormInput>();
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
 
   const onSubmit = async (data: IFormInput) => {
     try {
-      const response = await api.post('/api/login', data);
+      const response = await axios.post('/api/login', data);
 
       if (response.status === 200) {
         setLoginError(null);
-        // Navegación después del inicio de sesión exitoso
-        // Ejemplo usando useHistory de react-router-dom:
-        // history.push('/dashboard/home');
+        setLoginSuccess(true);
+        const { roleId } = response.data;
+        if (roleId === 1) {
+          window.location.href = 'http://localhost:3000/admin/ver';
+        } else {
+          console.log('No es un administrador');
+        }
+      } else {
+        setLoginError('Error desconocido al iniciar sesión.');
       }
     } catch (error: any) {
+      setLoginSuccess(false);
       if (error.response && error.response.status === 401) {
         setLoginError('Credenciales inválidas');
       } else {
@@ -127,6 +135,7 @@ const Login: React.FC = () => {
                 )}
               />
               {loginError && <Alert severity="error">{loginError}</Alert>}
+              {loginSuccess && !loginError && <Alert severity="success">Inicio de sesión exitoso</Alert>}
               <Button
                 type="submit"
                 fullWidth
